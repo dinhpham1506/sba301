@@ -1,0 +1,90 @@
+﻿services:
+  backend:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      AI_BASE_URL: ${AI_BASE_URL:-http://host.docker.internal:1234}
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: ${FLYWAY_BASELINE_ON_MIGRATE:-false}
+      SPRING_FLYWAY_BASELINE_VERSION: ${FLYWAY_BASELINE_VERSION:-25}
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/api/v1/auth/csrf"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 60s
+  sample-data:
+    image: pgvector/pgvector:pg18
+    profiles: [sample-data]
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGPORT: 5432
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB}
+    volumes:
+      - ./schema/sample-data.sql:/tmp/sample-data.sql:ro
+    entrypoint: ["psql"]
+    command: ["--set", "ON_ERROR_STOP=1", "--file", "/tmp/sample-data.sql"]
+  redis:
+    image: redis:8.2-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+  postgres:
+    image: pgvector/pgvector:pg18
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  pgadmin:
+    image: dpage/pgadmin4:9.8
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${PGADMIN_PORT:-5050}:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  redis_data:
+  postgres_data:
+    driver: local
+  pgadmin_data:

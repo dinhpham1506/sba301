@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FUO OCR Quizlet</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 330px;
+      background-color: #121316;
+      color: #f4f4f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 16px;
+      user-select: none;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #27272a;
+    }
+
+    .logo-icon {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .title-group h1 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .title-group p {
+      font-size: 11px;
+      color: #a1a1aa;
+    }
+
+    .status-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+    }
+
+    .status-dot.inactive {
+      background: #f59e0b;
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+    }
+
+    .guide-box {
+      background: #1a1a1e;
+      border: 1px solid #2e2e33;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .guide-title {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .guide-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 12px;
+      color: #d4d4d8;
+      line-height: 1.4;
+    }
+
+    .guide-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .step-badge {
+      background: #27272a;
+      color: #e4e4e7;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .actions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: none;
+      transition: all 0.15s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: #1f1f23;
+      color: #e4e4e7;
+      border: 1px solid #333338;
+    }
+
+    .btn-outline:hover {
+      background: #27272a;
+      color: #ffffff;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #71717a;
+      padding-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-icon">📚</div>
+    <div class="title-group">
+      <h1>FUO OCR Quizlet</h1>
+      <p>Trích xuất đề thi & ảnh sang Quizlet</p>
+    </div>
+  </div>
+
+  <div class="status-card">
+    <div class="status-left">
+      <div class="status-dot" id="status-dot"></div>
+      <span id="status-text">Đang kiểm tra tab...</span>
+    </div>
+    <button class="btn btn-outline" id="btn-toggle-panel" style="width: auto; padding: 4px 8px; font-size: 11px;">
+      Hiện bảng
+    </button>
+  </div>
+
+  <div class="guide-box">
+    <div class="guide-title">Hướng dẫn nhanh 3 bước</div>
+    <div class="guide-steps">
+      <div class="guide-step">
+        <span class="step-badge">1</span>
+        <span>Mở bài viết hoặc đề thi trên <strong>fuoverflow.com</strong></span>
+      </div>
+      <div class="guide-step">
+        <span class="step-badge">2</span>
+        <span>Bấm <strong>"Quét tất cả ảnh đính kèm (OCR)"</strong> ở bảng góc dưới bên phải</span>
+      </div>
+      <div class="guide-step">
+        <span class="step-badge">3</span>
+        <span>Bấm <strong>"Copy kết quả"</strong> rồi dán vào mục <strong>Import (+ Nhập)</strong> của Quizlet</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions-list">
+    <a href="https://fuoverflow.com" target="_blank" class="btn btn-primary" id="btn-open-fuo">
+      <span>🌐 Mở FuOverflow</span>
+    </a>
+    <a href="https://quizlet.com/create-set" target="_blank" class="btn btn-outline" id="btn-open-quizlet">
+      <span>📥 Mở Quizlet (Tạo học phần)</span>
+    </a>
+  </div>
+
+  <div class="footer">
+    FUO OCR Quizlet v1.0 • Hỗ trợ SV Đại học FPT
+  </div>
+
+  <script>
+    // Kiểm tra tab hiện tại
+    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+      if (!tabs || tabs.length === 0) return;
+      const currentTab = tabs[0];
+      const isFuo = currentTab.url && currentTab.url.includes('fuoverflow.com');
+
+      const dot = document.getElementById('status-dot');
+      const statusText = document.getElementById('status-text');
+      const toggleBtn = document.getElementById('btn-toggle-panel');
+
+      if (isFuo) {
+        dot.className = 'status-dot';
+        statusText.textContent = 'Đang ở FuOverflow';
+        toggleBtn.style.display = 'inline-flex';
+      } else {
+        dot.className = 'status-dot inactive';
+        statusText.textContent = 'Chưa vào FuOverflow';
+        toggleBtn.style.display = 'none';
+      }
+    });
+
+    // Nút bật/tắt bảng điều khiển trên content script
+    document.getElementById('btn-toggle-panel').addEventListener('click', function() {
+      chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+        if (!tabs || tabs.length === 0) return;
+        chrome.tabs.sendMessage(tabs[0].id, { action: 'toggle_panel' });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+/* Chỉ sửa giao diện list ở đây; header/footer ở index.css. */
+.restaurant-list .page-title {
+  color: #111;
+  font-size: 16px;
+  border: 0;
+}
+.restaurant-filter { margin: 24px 0 40px; }
+.restaurant-filter-row,
+.restaurant-filter-field {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.restaurant-filter-row { margin-top: 12px; flex-wrap: wrap; }
+.restaurant-filter-field .form-label {
+  width: 140px;
+  flex-shrink: 0;
+  margin: 0;
+  text-align: right;
+}
+.restaurant-filter-field .form-select { width: 180px; }
+.restaurant-filter-field .form-control { width: 280px; }
+.restaurant-table-title { font-size: 14px; font-weight: 700; }
+.restaurant-table thead th { background: #deedf6; }
+.restaurant-table th,
+.restaurant-table td { padding: 6px 8px; vertical-align: middle; }
+.restaurant-table .btn-link { padding: 0; color: #111; }
+@media (max-width: 575px) {
+  .restaurant-filter-row,
+  .restaurant-filter-field { flex-wrap: wrap; }
+  .restaurant-filter-field { width: 100%; gap: 6px; }
+  .restaurant-filter-field .form-label { width: 100%; text-align: left; }
+  .restaurant-filter-field .form-select,
+  .restaurant-filter-field .form-control { width: 100%; }
+}

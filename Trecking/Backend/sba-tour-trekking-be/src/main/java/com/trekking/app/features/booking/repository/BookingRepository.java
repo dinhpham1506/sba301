@@ -1,0 +1,122 @@
+package com.trekking.app.features.booking.repository;
+
+import com.trekking.app.features.booking.entity.Booking;
+import com.trekking.app.features.booking.enums.BookingStatus;
+import jakarta.persistence.LockModeType;
+import java.math.BigDecimal;
+import java.time.OffsetDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+public interface BookingRepository extends JpaRepository<Booking, Long>, JpaSpecificationExecutor<Booking> {
+        @Lock(LockModeType.PESSIMISTIC_WRITE)
+        @Query("select b from Booking b where b.id = :bookingId and b.customerId = :customerId")
+        Optional<Booking> findOwnedForUpdate(@Param("bookingId") long bookingId,
+                        @Param("customerId") long customerId);
+
+        @Lock(LockModeType.PESSIMISTIC_WRITE)
+        @Query("select b from Booking b where b.id = :bookingId")
+        Optional<Booking> findForUpdate(@Param("bookingId") long bookingId);
+
+        @EntityGraph(attributePaths = { "schedule", "schedule.tour" })
+        Optional<Booking> findWithScheduleById(long id);
+
+        @EntityGraph(attributePaths = { "schedule", "schedule.tour" })
+        Optional<Booking> findWithScheduleByIdAndCustomerId(long id, long customerId);
+
+        Optional<Booking> findByIdempotencyKey(String idempotencyKey);
+
+        @EntityGraph(attributePaths = { "schedule", "schedule.tour" })
+        List<Booking> findAllByCustomerIdAndStatusAndHoldExpiresAtAfterOrderByHoldExpiresAtAsc(
+                        Long customerId, BookingStatus status, OffsetDateTime now);
+
+        List<Booking> findAllByScheduleIdAndStatusInOrderByIdAsc(
+                        Long scheduleId, Collection<BookingStatus> statuses);
+
+        List<Booking> findAllByScheduleIdInAndStatusInOrderByIdAsc(
+                        Collection<Long> scheduleIds, Collection<BookingStatus> statuses);
+
+        @Override
+        @EntityGraph(attributePaths = { "schedule", "schedule.tour" })
+        Page<Booking> findAll(Specification<Booking> specification, Pageable pageable);
+
+        @Query("""
+                        select b.id from Booking b
+                        where b.status = :status and b.holdExpiresAt <= :now
+                        order by b.holdExpiresAt, b.id
+                        """)
+        List<Long> findDueHoldIds(@Param("status") BookingStatus status, @Param("now") OffsetDateTime now,
+                        Pageable pageable);
+
+        @Query("""
+                        select b.id from Booking b
+                        where b.scheduleId = :scheduleId and b.status = :status and b.holdExpiresAt <= :now
+                        order by b.holdExpiresAt, b.id
+                        """)
+        List<Long> findDueHoldIdsForSchedule(@Param("scheduleId") long scheduleId,
+                        @Param("status") BookingStatus status,
+                        @Param("now") OffsetDateTime now, Pageable pageable);
+
+        /*
+         * The two advisory locks below stay native on purpose: pg_advisory_xact_lock is a PostgreSQL
+         * function with no JPA equivalent, and a row lock cannot protect a booking that does not exist yet.
+         */
+
+        /**
+         * Serializes concurrent creates that share one idempotency key, even across
+         * schedules.
+         */
+        @Query(value = "select 1 from (select pg_advisory_xact_lock(hashtextextended(:key, 0))) as advisory", nativeQuery = true)
+        Integer lockIdempotencyKey(@Param("key") String key);
+
+        /** Serializes booking creation across tabs and schedules for one customer. */
+        @Query(value = "select 1 from (select pg_advisory_xact_lock(hashtextextended(concat('booking-customer:', :customerId), 0))) as advisory", nativeQuery = true)
+        Integer lockCustomerBookingCreation(@Param("customerId") long customerId);
+
+        @Query("""
+                        select coalesce(sum(p.amountVnd), 0) from CustomerPayment p
+                        where p.bookingId = :bookingId
+                          and p.allocationStatus = com.trekking.app.features.payment.enums.AllocationStatus.ACCEPTED
+                        """)
+        BigDecimal acceptedPaymentTotalVnd(@Param("bookingId") long bookingId);
+
+        @Query("select coalesce(sum(r.amountVnd), 0) from CustomerRefund r where r.bookingId = :bookingId")
+        BigDecimal refundedTotalVnd(@Param("bookingId") long bookingId);
+
+        /**
+         * Actual accepted receipts and actual refunds; attempts and pending reviews are
+         * excluded.
+         */
+        @Query("""
+                        select b.id as bookingId,
+                               coalesce((select sum(p.amountVnd) from CustomerPayment p
+                                    where p.bookingId = b.id
+                                      and p.allocationStatus = com.trekking.app.features.payment.enums.AllocationStatus.ACCEPTED), 0) as paidVnd,
+                               coalesce((select sum(r.amountVnd) from CustomerRefund r
+                                    where r.bookingId = b.id), 0) as refundedVnd
+                        from Booking b
+                        where b.id in :bookingIds
+                        """)
+        List<MoneyTotalsView> moneyTotals(@Param("bookingIds") Collection<Long> bookingIds);
+
+        @Query("select count(r) > 0 from Review r where r.bookingId = :bookingId")
+        boolean hasReview(@Param("bookingId") long bookingId);
+
+        interface MoneyTotalsView {
+                Long getBookingId();
+
+                Long getPaidVnd();
+
+                Long getRefundedVnd();
+        }
+}

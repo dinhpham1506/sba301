@@ -1,0 +1,34 @@
+package com.trekking.app.features.account.repository;
+
+import com.trekking.app.features.account.entity.AppAccount;
+import jakarta.persistence.LockModeType;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+public interface AppAccountRepository extends JpaRepository<AppAccount, Long>, JpaSpecificationExecutor<AppAccount> {
+    // Serialize administrative revocations before locking individual actors/targets.
+    @Query(value = "select 1 from pg_advisory_xact_lock(72630401)", nativeQuery = true)
+    Integer serializeAdministration();
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select a from AppAccount a where a.id = :id")
+    Optional<AppAccount> lockById(@Param("id") Long id);
+
+    // Normalize persisted legacy email values during lookup; request validation belongs to the validation layer.
+    @Query("select a from AppAccount a where lower(trim(a.email)) = :email")
+    Optional<AppAccount> findByEmail(@Param("email") String email);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select a from AppAccount a where lower(trim(a.email)) = :email")
+    Optional<AppAccount> lockByEmail(@Param("email") String email);
+
+    Optional<AppAccount> findByGoogleSubject(String googleSubject);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select a from AppAccount a where a.googleSubject = :subject")
+    Optional<AppAccount> lockByGoogleSubject(@Param("subject") String subject);
+}

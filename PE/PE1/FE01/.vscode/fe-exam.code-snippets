@@ -1,0 +1,142 @@
+{
+  "API chung Axios": {
+    "scope": "javascript,javascriptreact",
+    "prefix": "apibase",
+    "description": "Tạo file API chung GET POST PUT PATCH DELETE. Dùng trong file trống.",
+    "body": [
+      "import axios from \"axios\";",
+      "",
+      "const BASE_URL = \"${1:http://localhost:8080/api}\";",
+      "",
+      "export async function getData(path, params) {",
+      "  const response = await axios.get(BASE_URL + path, { params });",
+      "  return response.data;",
+      "}",
+      "",
+      "export async function postData(path, data) {",
+      "  const response = await axios.post(BASE_URL + path, data);",
+      "  return response.data;",
+      "}",
+      "",
+      "export async function putData(path, data) {",
+      "  const response = await axios.put(BASE_URL + path, data);",
+      "  return response.data;",
+      "}",
+      "",
+      "export async function patchData(path, data) {",
+      "  const response = await axios.patch(BASE_URL + path, data);",
+      "  return response.data;",
+      "}",
+      "",
+      "export async function deleteData(path) {",
+      "  const response = await axios.delete(BASE_URL + path);",
+      "  return response.data;",
+      "}",
+      "$0"
+    ]
+  },
+  "Import API chung": {
+    "scope": "javascript,javascriptreact",
+    "prefix": "apiimport",
+    "description": "Import các hàm API chung; sửa đường dẫn import theo file.",
+    "body": [
+      "import { getData, postData, putData, patchData, deleteData } from \"${1:./api}\";",
+      "$0"
+    ]
+  },
+  "GET danh sách": {
+    "scope": "javascript,javascriptreact",
+    "prefix": "apiget",
+    "description": "Tên hàm → endpoint. Cần import getData.",
+    "body": [
+      "export function ${1:getEmployees}(params) {",
+      "  return getData(\"${2:/employees}\", params);",
+      "}",
+      "$0"
+    ]
+  },
+  "GET theo ID": {
+    "scope": "javascript,javascriptreact",
+    "prefix": "apigetid",
+    "description": "Tên hàm → endpoint. Cần import getData.",
+    "body": [
+      "export function ${1:getEmployeeById}(id) {",
+      "  return getData(\"${2:/employees}/\" + id);",
+      "}",
+      "$0"
+    ]
+  },
+  "POST dữ liệu": {
+    "scope": "javascript,javascriptreact",
+    "prefix": "apipost",
+    "description": "Tên hàm → endpoint. Cần import postData.",
+    "body": [
+      "export function ${1:createEmployee}(data) {",
+      "  return postData(\"${2:/employees}\", data);",
+      "}",
+      "$0"
+    ]
+  },
+  "PUT dữ liệu": {
+    "scope": "javascript,javascriptreact",
+    "prefix": "apiput",
+    "description": "Tên hàm → endpoint. Cần import putData.",
+    "body": [
+      "export function ${1:updateEmployee}(id, data) {",
+      "  return putData(\"${2:/employees}/\" + id, data);",
+      "}",
+      "$0"
+    ]
+  },
+  "PATCH dữ liệu": {
+    "scope": "javascript,javascriptreact",
+    "prefix": "apipatch",
+    "description": "Tên hàm → endpoint. Cần import patchData.",
+    "body": [
+      "export function ${1:patchEmployee}(id, data) {",
+      "  return patchData(\"${2:/employees}/\" + id, data);",
+      "}",
+      "$0"
+    ]
+  },
+  "DELETE theo ID": {
+    "scope": "javascript,javascriptreact",
+    "prefix": "apidelete",
+    "description": "Tên hàm → endpoint. Cần import deleteData.",
+    "body": [
+      "export function ${1:deleteEmployee}(id) {",
+      "  return deleteData(\"${2:/employees}/\" + id);",
+      "}",
+      "$0"
+    ]
+  },
+  "File API cho một đối tượng": {
+    "scope": "javascript,javascriptreact",
+    "prefix": "apicrud",
+    "description": "Tạo file API đầy đủ. Tab đổi đường dẫn import, tên đối tượng, endpoint.",
+    "body": [
+      "import { getData, postData, putData, deleteData } from \"${1:./api}\";",
+      "",
+      "export function get${2:Employee}List(params) {",
+      "  return getData(\"${3:/employees}\", params);",
+      "}",
+      "",
+      "export function get${2}ById(id) {",
+      "  return getData(\"${3}/\" + id);",
+      "}",
+      "",
+      "export function create${2}(data) {",
+      "  return postData(\"${3}\", data);",
+      "}",
+      "",
+      "export function update${2}(id, data) {",
+      "  return putData(\"${3}/\" + id, data);",
+      "}",
+      "",
+      "export function delete${2}(id) {",
+      "  return deleteData(\"${3}/\" + id);",
+      "}",
+      "$0"
+    ]
+  }
+}

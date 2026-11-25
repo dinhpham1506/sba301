@@ -1,0 +1,31 @@
+/* ================= ĐỔI MÀU: CHỈ SỬA Ở ĐÂY ================= */
+:root {
+  --main: #e9cb05;          /* header, tiêu đề bảng, nút Search/Save, phân trang */
+  --main-text: #ffffff;       /* chữ trên nền --main */
+  --footer-bg: #f8f9fa;       /* nền footer */
+  --btn-light-border: #cccccc;/* viền nút Add New / Back */
+}
+/* ========================================================== */
+
+.page-box { max-width: 1100px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; background: #fff; }
+.page-box > .container-fluid { flex: 1; }
+.app-header { background: var(--main); color: var(--main-text); }
+.app-footer { background: var(--footer-bg); border-top: 1px solid #ddd; }
+.page-title { color: var(--main); font-weight: 700; border-bottom: 1px solid #ddd; padding-bottom: 6px; margin-top: 16px; }
+
+/* Tiêu đề bảng danh sách */
+.table-head th { background: var(--main) !important; color: var(--main-text) !important; font-weight: 600; }
+
+/* Nút chính (Search, Save): nền --main */
+.btn-main, .btn-main:hover, .btn-main:active { background: var(--main) !important; border-color: var(--main) !important; color: var(--main-text) !important; }
+/* Nút phụ (Add New, Back): trắng viền xám */
+.btn-light-box, .btn-light-box:hover, .btn-light-box:active { background: #fff !important; border: 1px solid var(--btn-light-border) !important; color: #333 !important; }
+.btn-main:hover, .btn-light-box:hover { filter: brightness(0.92); }
+
+/* Phân trang */
+.pagination {
+  --bs-pagination-color: var(--main);
+  --bs-pagination-hover-color: var(--main);
+  --bs-pagination-active-bg: #F62682;
+  --bs-pagination-active-border-color: var(--main);
+}

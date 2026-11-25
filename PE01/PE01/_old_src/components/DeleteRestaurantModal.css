@@ -1,0 +1,32 @@
+/* Chỉnh hộp xác nhận tại đây, tách khỏi CSS của list. */
+.restaurant-delete-modal .modal-content {
+  border: 1px solid #777;
+  border-radius: 0;
+}
+
+.restaurant-delete-modal .modal-header {
+  justify-content: center;
+  border: 0;
+}
+
+.restaurant-delete-modal .modal-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.restaurant-delete-modal .modal-body {
+  padding: 16px 40px;
+}
+
+.restaurant-delete-modal .modal-footer {
+  justify-content: space-evenly;
+  border: 0;
+}
+
+.restaurant-delete-modal .btn-secondary {
+  background: #ddd;
+  border-color: #ddd;
+  border-radius: 0;
+  color: #111;
+  min-width: 70px;
+}

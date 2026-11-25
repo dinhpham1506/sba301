@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "FUO OCR Quizlet",
+  "version": "1.1.0",
+  "description": "Tiện ích bóc tách đề thi & ảnh đính kèm WebP trên FuOverflow bằng OCR và xuất định dạng chuẩn Quizlet",
+  "permissions": [
+    "activeTab",
+    "clipboardWrite",
+    "storage",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "*://fuoverflow.com/*",
+    "*://*.fuoverflow.com/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "FUO OCR Quizlet"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://fuoverflow.com/*",
+        "*://*.fuoverflow.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "tesseract_lib/*",
+        "tesseract.min.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}
